@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+    var authURL="https://accounts.google.com/o/oauth2/auth?";
+    var scope="profile";
+    var redirectURL="http://individual.utoronto.ca/yuan_xue68/SSO/auth.html";
+    var responseType="token";
+    var clientID="Put your client id here";
+    var fullURL=authURL+"scope="+scope+"&redirect_uri="+redirectURL+"&response_type="+responseType+"&client_id="+clientID;
+    </script>
+</head>
+<body>
+	<h1>Diaplsy your Google profile</h1>
+	<a href="#" id="login"> Click here to login </a>
+	<p>Click the link above to retrieve your profile information</p>
+</body>
+<script>
+	document.getElementById("login").setAttribute("href",fullURL);
+</script>
+</html>

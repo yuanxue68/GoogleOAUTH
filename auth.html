@@ -1,0 +1,122 @@
+<html>
+<head>
+	<script>
+		window.onload=function(){
+			var validUrl="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=";
+	    	var logout="http://accounts.google.com/Logout";
+	    	var params = {};
+	    	parseResponse(params);
+	    	var user;
+	    	var accessToken=params['access_token'];
+	    	validateToken(validUrl,accessToken);
+
+	    	console.log("access_token is "+accessToken);
+		}
+		//parse they query string
+    	function parseResponse(params){
+    		var queryString = location.hash.substring(1);
+    		var regex = /([^&=]+)=([^&]*)/g;
+    		var m;
+			while (m = regex.exec(queryString)) {
+  				params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+			}
+    	}
+    	//validate token
+    	function validateToken(validUrl,accessToken){
+
+    		var req=new XMLHttpRequest();
+    		req.open('GET', validUrl + accessToken, true);
+			req.onreadystatechange = function (e) {
+			  	if (req.readyState == 4) {
+			     	if(req.status == 200){
+			       		getUserInfo(accessToken);
+			   		}
+				    else {
+				    	try{
+					    	err=JSON.parse(req.responseText)
+					    	showError(err.error.code,err.error.message);
+					    }
+					    catch(e){
+					    	showError(req.status,req.statusText);
+					    }
+				    }
+			  	}
+			};
+			req.send(null);
+    	}
+    	function getUserInfo(accessToken){
+
+    		var req=new XMLHttpRequest();
+    		var url= 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + accessToken;
+    		req.open('GET', url, true);
+			req.onreadystatechange = function (e) {
+			  	if (req.readyState == 4) {
+			     	if(req.status == 200){
+			     		
+			     		createTable(JSON.parse(req.responseText),accessToken);
+			   		}
+				    else {
+				    	try{
+					    	err=JSON.parse(req.responseText)
+					    	showError(err.error.code,err.error.message);
+					    }
+					    catch(e){
+					    	showError(req.status,req.statusText);
+					    }
+				    }
+			  	}
+			};
+			req.send(null);
+    	}
+
+    	function createTable(res,token){
+    		var req=new XMLHttpRequest();
+    		var url= "https://www.googleapis.com/plus/v1/people/"+res.id+"?access_token="+token;
+    		req.open('GET', url, true);
+			req.onreadystatechange = function (e) {
+			  	if (req.readyState == 4) {
+			     	if(req.status == 200){
+			     		console.log(req.responseText)
+			     		user=JSON.parse(req.responseText)
+			     
+			     		var table=document.createElement("table");
+			     		document.body.appendChild(table);
+			     		table.border="1";
+			     		table.id="profile";
+			     		//loop through each attribute and put the information in a html table
+			     		for (var attr in user){
+			     			 var tr=document.createElement("tr");
+			     			 table.appendChild(tr);
+
+			     			 var tdName=document.createElement("td");
+			     			 var tdValue=document.createElement("td");
+			     			 tdName.innerHTML=attr;
+			     			 tdValue.innerHTML=user[attr];
+			     			 tr.appendChild(tdName);
+			     			 tr.appendChild(tdValue);
+			     		}
+			   		}else{
+				    	try{
+					    	err=JSON.parse(req.responseText)
+					    	showError(err.error.code,err.error.message);
+					    }
+					    catch(e){
+					    	showError(req.status,req.statusText);
+					    }
+				    }
+			  	}
+			};
+			req.send(null);
+    	}
+
+    	//if some error occur create a html table showing the erro code and erro message
+    	function showError(code,msg){
+    		message="<table id='error' border='1'><tr><td>code</td><td>"+code+"</td></tr><tr><td>message</td><td>"+msg+"</td></tr></table>";
+    		document.body.innerHTML=message;
+    	}
+    	
+	</script>
+</head>
+<body>
+</body>
+<html>
